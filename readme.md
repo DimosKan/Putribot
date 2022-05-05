@@ -1,0 +1,1 @@
+A discord bot that effectively uses the warmane API for tracking purposes in a World of Warcraft private server.
