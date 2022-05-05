@@ -1,0 +1,26 @@
+{
+  "name": "package.json",
+  "version": "0.0.1",
+  "description": "Package for warmane API using bot, putricide",
+  "main": "putri.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DimosKan/Putribot.git"
+  },
+  "keywords": [
+    "putricide",
+    "warmane",
+    "API",
+    "bot",
+    "WOTLK"
+  ],
+  "author": "Scarlet D.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DimosKan/Putribot/issues"
+  },
+  "homepage": "https://github.com/DimosKan/Putribot#readme"
+}
