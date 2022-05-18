@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/DimosKan/Putribot/issues"
   },
-  "homepage": "https://github.com/DimosKan/Putribot#readme"
+  "homepage": "https://github.com/DimosKan/Putribot#readme",
+  "dependencies": {
+    "jquery": "^3.6.0"
+  }
 }
