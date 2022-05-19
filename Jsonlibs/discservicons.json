@@ -1,0 +1,14 @@
+{
+    "classes":{
+        "Priest" : "<:priest:976906557889605772>",
+        "Mage" : "<:mage:976906492051599450>",
+        "Warlock":"<:warlock:976906584565379152>",
+        "Druid":"<:druid:976906521147506708>",
+        "Rogue":"<:rogue:976906566261440543>",
+        "Hunter":"<:hunter:976906513010552932>",
+        "Shaman":"<:shaman:976906573559496775>",
+        "Warrior":"<:warrior:976906592668758137>",
+        "Paladin":"<:paladin:976906549173842000>",
+        "Death Knight" : "<:deathknight:976908678852665355>"    
+    }
+}
