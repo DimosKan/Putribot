@@ -24,6 +24,15 @@
   },
   "homepage": "https://github.com/DimosKan/Putribot#readme",
   "dependencies": {
-    "jquery": "^3.6.0"
+    "axios": "^0.27.2",
+    "discord.js": "^13.7.0",
+    "jquery": "^3.6.0",
+    "jsdom": "^19.0.0",
+    "node.js": "0.0.1-security",
+    "nodemon": "^1.19.4",
+    "npm": "^8.10.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6",
+    "sqlite3": "^5.0.8"
   }
 }
