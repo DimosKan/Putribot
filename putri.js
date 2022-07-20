@@ -10,6 +10,7 @@ const fs = require('fs')
 var sqlite = require('sqlite3').verbose();
 const { MessageEmbed } = require('discord.js');
 const axiosfuncgroup = require('./functions/axiosearcher')
+const dbfile = require('./functions/dbfunc')
 //const embedgroup = require('./functions/embed')
 
 
@@ -26,17 +27,47 @@ client.on("guildCreate", guild => {
 
 client.on("messageCreate", async (message) => {
 	var prefix = ';';
-if (message.guild == null)return;
+//if (message.guild == null)return;
 if (message.author.bot) return;
 
+if (message.content.startsWith(prefix + "start") && (message.author.id === message.guild.ownerId)){
+	var messagecontent = message.content.replace(`${prefix}start `,'')
+	var messagecontent = messagecontent.split("-")
+	let guildname = messagecontent[0]
+	let servername = messagecontent[1]
+	let axiosfeeder = await axiosfuncgroup.axiosgatherer(message,guildname,servername);
+	let statustext = `\n${guildname}-${servername}\nLeader:${axiosfeeder.leaderclass} ${axiosfeeder.leader}\nMember sum:${axiosfeeder.membercount}\nMembers online: ${axiosfeeder.onl_array}`
+	message.guild.channels.create("Putricide's Laboratory of Alchemical Horrors and Fun",{
+		type: 'GUILD_TEXT', 
+		reason: 'Made a channel for guild tracking',
+		permissionOverwrites:[{
+			id: message.guild.id, 
+			allow: ["VIEW_CHANNEL"], 
+			deny: ["SEND_MESSAGES"],
+		}]
+	}).then((channel)=> {
+		channeldata = channel.send(statustext).then(
+			(channeldata)=> {
+			let init = true;
+			dbfile.dbRegister(guildname,servername,axiosfeeder.leader,axiosfeeder.membercount,init,channel.id,channel.lastMessageId)
+			}
+			//console.log(channel.id,channel.lastMessageId)
+		)
+	})		
+}
+
 if (message.content.startsWith(prefix + "search")){
-	var realcontent = message.content.slice(8)
+	var realcontent = message.content.replace(`${prefix}search `,'')
 	var contentslicer =  realcontent.split("-");
 	var guildname = contentslicer[0];
 	var servername = contentslicer[1];
-	//Known bugs: When no members are online in the guild, it throws unhandled error
+	//Known bugs: When guild is not written properly(does not exist), it throws unhandled error
 	let axiosfeeder = await axiosfuncgroup.axiosgatherer(message,guildname,servername);
-	message.author.send(`\n${guildname}-${servername}\nLeader:${axiosfeeder.leaderclass} ${axiosfeeder.leader}\nMember sum:${axiosfeeder.membercount}\nMembers online: ${axiosfeeder.onl_array}`);
-}	
+	let statustext = `\n${guildname}-${servername}\nLeader:${axiosfeeder.leaderclass} ${axiosfeeder.leader}\nMember sum:${axiosfeeder.membercount}\nMembers online: ${axiosfeeder.onl_array}`
+	message.author.send(statustext);
+	
+}
 
 });
+
+

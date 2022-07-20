@@ -11,10 +11,13 @@ async function axiosgatherer(message,guildname,servername){
 		axios.get(link).then(function (response) {
 			let onlinearray = [];
 			let classtable = rawdata;
-			response.data.roster.forEach((user, index) => {
+			response.data.roster.forEach((user, index,error) => {
 				classicon = classtable["classes"][user.class];
 				if (user.online)onlinearray.push(`${classicon} ${user.name}`);
-			});
+			})
+			if (onlinearray === []){
+				let onlinearray = onlinearray.tostring("None")
+			}
 			resolve({
 			onl_array : onlinearray.toString(),
 			channelid: message.guildId,
