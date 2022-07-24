@@ -4,29 +4,71 @@ const { Console } = require('console');
 const client = new Client({ intents: [ "GUILDS" , "GUILD_MESSAGES"] });
 const axios = require('axios').default;
 const util = require('util');
-client.login(token);
 const path = require('path');
 const fs = require('fs')
 var sqlite = require('sqlite3').verbose();
-const { MessageEmbed } = require('discord.js');
-const axiosfuncgroup = require('./functions/axiosearcher')
-const dbfile = require('./functions/dbfunc')
-//const embedgroup = require('./functions/embed')
 
+const appDir = path.dirname(require.main.filename);
+const { MessageEmbed } = require('discord.js');
+const axiosfuncgroup = require('./functions/axiosearcher');
+const dbfunc = require('./functions/dbfunc');
+const dbPath = appDir + '/database/warmanedb';
+//const embedgroup = require('./functions/embed')
+ 
+// Bot login
+client.login(token);
+
+//το παρακάτω scriptακι χρησιμευέι ΓΙΑ ΝΑ ΜΟΥ ΓΑΜΑΝΕ ΤΗΝ ΖΩΗ ΓΙΑ ΑΛΛΗ ΜΙΑ ΦΟΡΑ ΤΑ ΚΩΛΟΑΣΥΓΧΡΟΝΑ, ΓΙΩΡΓΟ ΒΟΗΘΕΙΑ ΡΕ ΜΑΛΑΚΑ
+async function messagEditor(){
+	return await new Promise((resolve,reject) => {
+		let db = new sqlite.Database(dbPath, sqlite.OPEN_READONLY);
+		const sql = 'SELECT * FROM guildinfo WHERE server = ?';
+
+
+		db.all(sql,["Lordaeron"], function(error,rows){
+			if (!rows.length > 0){
+				console.log("Η βάση δεδομένων είναι άδεια")
+				db.close(); 
+				return;
+			}
+			
+			rows.forEach(async function(row){
+				let guildname = row.name;
+				let servername = row.server;
+				let axiosfeeder =   await axiosfuncgroup.axiosgatherer(guildname,servername)
+				let statustext = `\n${guildname}-${servername}\nLeader:${axiosfeeder.leaderclass} ${axiosfeeder.leader}\nMember sum:${axiosfeeder.membercount}\nMembers online: ${axiosfeeder.onl_array} KAI ANTE ΓΑΜΗΣΟΥ`;
+				console.log(`θα κάνω edit το μήνυμα ${row.messageid} και το μήνυμα θα είναι ${statustext}`)
+				console.log(`Message Edited ${guildname}`)
+				// resolve({
+				// 	editedmessage: statustext,
+				// 	messageid: row.messageid
+				// })
+				// reject(new Error("Whoops!"))
+			})
+			db.close();
+		})
+	})
+
+}
 
 client.on('ready', () => {
 	console.log('Good news everyone! The bot is working once again!');
 	client.user.setActivity('Good news everyone!');
-});
+	var messagescanner = messagEditor(); 
+}); 
 
 
-client.on("guildCreate", guild => {
+client.on("NOOPguildCreate", guild => {
 	const channel = guild.channels.cache.find(channel => channel.type === 'text' && channel.permissionsFor(guild.me).has('SEND_MESSAGES'))
-	channel.send(`Just an ordinary Discord bot... but watch out, because that's no ordinary Discord bot! Just write the right command with your guild and the server it belongs like so: ";init guildname-servername" and let me do the magic!`);
+	channel.send(`Just an ordinary Discord bot... but watch out, because that's no ordinary Discord bot! Just write the right command with your guild and the server it belongs like so: ";start guildname-servername" and let me do the magic!`);
 })
 
-client.on("messageCreate", async (message) => {
-	var prefix = ';';
+client.on("NOOPchannelDelete", async (channel) =>{
+channelChecker = dbfunc.channelUpdater(channel);
+})
+
+client.on("NOOPmessageCreate", async (message) => {
+	var prefix = ';'
 //if (message.guild == null)return;
 if (message.author.bot) return;
 
@@ -35,7 +77,11 @@ if (message.content.startsWith(prefix + "start") && (message.author.id === messa
 	var messagecontent = messagecontent.split("-")
 	let guildname = messagecontent[0]
 	let servername = messagecontent[1]
-	let axiosfeeder = await axiosfuncgroup.axiosgatherer(message,guildname,servername);
+	var flagdata = await dbfunc.flagChecker(message)
+	if(flagdata.init == 1){
+	return;
+	}
+	let axiosfeeder = await axiosfuncgroup.axiosgatherer(guildname,servername);
 	let statustext = `\n${guildname}-${servername}\nLeader:${axiosfeeder.leaderclass} ${axiosfeeder.leader}\nMember sum:${axiosfeeder.membercount}\nMembers online: ${axiosfeeder.onl_array}`
 	message.guild.channels.create("Putricide's Laboratory of Alchemical Horrors and Fun",{
 		type: 'GUILD_TEXT', 
@@ -49,9 +95,8 @@ if (message.content.startsWith(prefix + "start") && (message.author.id === messa
 		channeldata = channel.send(statustext).then(
 			(channeldata)=> {
 			let init = true;
-			dbfile.dbRegister(guildname,servername,axiosfeeder.leader,axiosfeeder.membercount,init,channel.id,channel.lastMessageId)
+			dbfunc.dbRegister(guildname,servername,axiosfeeder.leader,axiosfeeder.membercount,channel.guild.id,channel.id,channel.lastMessageId)
 			}
-			//console.log(channel.id,channel.lastMessageId)
 		)
 	})		
 }
@@ -61,8 +106,9 @@ if (message.content.startsWith(prefix + "search")){
 	var contentslicer =  realcontent.split("-");
 	var guildname = contentslicer[0];
 	var servername = contentslicer[1];
+	var channelid =  message.guildId;
 	//Known bugs: When guild is not written properly(does not exist), it throws unhandled error
-	let axiosfeeder = await axiosfuncgroup.axiosgatherer(message,guildname,servername);
+	let axiosfeeder = await axiosfuncgroup.axiosgatherer(guildname,servername);
 	let statustext = `\n${guildname}-${servername}\nLeader:${axiosfeeder.leaderclass} ${axiosfeeder.leader}\nMember sum:${axiosfeeder.membercount}\nMembers online: ${axiosfeeder.onl_array}`
 	message.author.send(statustext);
 	
