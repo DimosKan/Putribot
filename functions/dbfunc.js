@@ -3,7 +3,7 @@ const util = require('util');
 
 async function dbRegister(name,server,leader,membercount,guildid,channelid,messageid){
 const prefix = ";"
-let db = new sqlite.Database('putribot/database/warmanedb', sqlite.OPEN_READWRITE);
+  let db = new sqlite.Database('putribot/database/warmanedb.sqlite', sqlite.OPEN_READWRITE);
 const sql = 'SELECT channelid FROM guildinfo WHERE name = ? AND server = ?';
 db.all(sql,[name,server], function(error,rows){
   if (rows.length > 0){
@@ -24,7 +24,7 @@ db.all(sql,[name,server], function(error,rows){
 }
 
   function channelUpdater(channel){
-    let db = new sqlite.Database('putribot/database/warmanedb', sqlite.OPEN_READWRITE);
+    let db = new sqlite.Database('putribot/database/warmanedb.sqlite', sqlite.OPEN_READWRITE);
     db.serialize(function(){
       var smmt = db.prepare("DELETE FROM guildinfo WHERE channelid = ?");
       smmt.run(channel.id);
@@ -36,7 +36,7 @@ db.all(sql,[name,server], function(error,rows){
 async function flagChecker(message){
   return await new Promise((resolve, reject) => {
   let init = 0;
-  let db = new sqlite.Database('putribot/database/warmanedb', sqlite.OPEN_READWRITE);
+    let db = new sqlite.Database('putribot/database/warmanedb.sqlite', sqlite.OPEN_READWRITE);
   const sql = 'SELECT channelid FROM guildinfo WHERE guildid = ?';
   db.all(sql,[message.guildId], function(error,rows){
     if (rows.length > 0){

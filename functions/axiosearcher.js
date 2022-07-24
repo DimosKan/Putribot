@@ -31,7 +31,7 @@ async function axiosgatherer(guildname,servername){
 			  
 			}
 			console.log(error.config);
-			reject(console.log("Κάτι πήγε λάθος"))
+			reject("Κάτι πήγε λάθος");
 		  });
 	});
 }

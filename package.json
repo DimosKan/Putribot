@@ -25,6 +25,7 @@
   "homepage": "https://github.com/DimosKan/Putribot#readme",
   "dependencies": {
     "axios": "^0.27.2",
+    "blubird": "^0.0.1-security",
     "discord.js": "^13.7.0",
     "jquery": "^3.6.0",
     "jsdom": "^19.0.0",

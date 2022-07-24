@@ -6,47 +6,107 @@ const axios = require('axios').default;
 const util = require('util');
 const path = require('path');
 const fs = require('fs')
-var sqlite = require('sqlite3').verbose();
+const bluebird = require("bluebird");
+const sqlite = require('sqlite3').verbose();
 
 const appDir = path.dirname(require.main.filename);
 const { MessageEmbed } = require('discord.js');
 const axiosfuncgroup = require('./functions/axiosearcher');
 const dbfunc = require('./functions/dbfunc');
-const dbPath = appDir + '/database/warmanedb';
+const dbPath = appDir + '/database/warmanedb.sqlite';
 //const embedgroup = require('./functions/embed')
  
 // Bot login
 client.login(token);
 
 //το παρακάτω scriptακι χρησιμευέι ΓΙΑ ΝΑ ΜΟΥ ΓΑΜΑΝΕ ΤΗΝ ΖΩΗ ΓΙΑ ΑΛΛΗ ΜΙΑ ΦΟΡΑ ΤΑ ΚΩΛΟΑΣΥΓΧΡΟΝΑ, ΓΙΩΡΓΟ ΒΟΗΘΕΙΑ ΡΕ ΜΑΛΑΚΑ
-async function messagEditor(){
-	return await new Promise((resolve,reject) => {
-		let db = new sqlite.Database(dbPath, sqlite.OPEN_READONLY);
-		const sql = 'SELECT * FROM guildinfo WHERE server = ?';
+async function messageEditor(){
+	let guildsArr = ["Lordaeron"];
 
+	let db = new sqlite.Database(dbPath, sqlite.OPEN_READONLY);
 
-		db.all(sql,["Lordaeron"], function(error,rows){
-			if (!rows.length > 0){
-				console.log("Η βάση δεδομένων είναι άδεια")
-				db.close(); 
-				return;
-			}
-			
-			rows.forEach(async function(row){
-				let guildname = row.name;
-				let servername = row.server;
-				let axiosfeeder =   await axiosfuncgroup.axiosgatherer(guildname,servername)
-				let statustext = `\n${guildname}-${servername}\nLeader:${axiosfeeder.leaderclass} ${axiosfeeder.leader}\nMember sum:${axiosfeeder.membercount}\nMembers online: ${axiosfeeder.onl_array} KAI ANTE ΓΑΜΗΣΟΥ`;
-				console.log(`θα κάνω edit το μήνυμα ${row.messageid} και το μήνυμα θα είναι ${statustext}`)
-				console.log(`Message Edited ${guildname}`)
-				// resolve({
-				// 	editedmessage: statustext,
-				// 	messageid: row.messageid
-				// })
-				// reject(new Error("Whoops!"))
+	return await new Promise(async (resolve,reject) => {
+		try {
+			const sql = 'SELECT * FROM guildinfo WHERE server = ?';
+			//let promisedResults = [];
+			//let results = [];
+			// try {
+			// 	await new Promise(async (dbres, dbrej) => {
+			// 		db.all(sql, guildsArr, function (err, rows) {
+			// 			if (rows.length == 0) {
+			// 				console.log("Η βάση δεδομένων είναι άδεια")
+			// 				db.close();
+			// 				reject(new Error("Η βάση δεδομένων είναι άδεια"));
+			// 			}
+
+			// 			rows.forEach(function (row, index, array) {
+			// 				promisedResults.push(
+			// 					new Promise(async (res, rej) => {
+			// 						let guildname = row.name;
+			// 						let servername = row.server;
+			// 						await new Promise(r => setTimeout(r, (index + 1) * 2000));
+			// 						try {
+			// 							// let axiosfeeder = await axiosfuncgroup.axiosgatherer(guildname, servername);
+			// 						} catch (error) {
+			// 							rej("Failed to axios gather.");
+			// 						}
+			// 						// let statustext = `\n${guildname}-${servername}\nLeader:${axiosfeeder.leaderclass} ${axiosfeeder.leader}\nMember sum:${axiosfeeder.membercount}\nMembers online: ${axiosfeeder.onl_array} KAI ANTE ΓΑΜΗΣΟΥ`;
+			// 						// console.log(`θα κάνω edit το μήνυμα ${row.messageid} και το μήνυμα θα είναι ${statustext}`);
+			// 						// console.log(`Message Edited ${guildname}`);
+			// 						console.log("I run " + index);
+			// 						res({
+			// 							editedmessage: 0,// statustext,
+			// 							messageid: 1//row.messageid
+			// 						});
+			// 					})
+			// 				);
+			// 			})
+			// 		})
+			// 		results = await Promise.all(promisedResults);
+			// 		dbres();
+			// 	})
+			// } catch (error) {
+			// 	reject(new Error("Error while processing the requests."));
+			// }
+
+			let data = await new Promise((res, rej) => {
+				db.all(sql, guildsArr, function (err, rows) {
+					if (rows.length == 0) {
+						console.log("Η βάση δεδομένων είναι άδεια")
+						db.close();
+						rej(new Error("Η βάση δεδομένων είναι άδεια"));
+					}
+					res(rows);
+				});
+			});
+
+			let results = await bluebird.Promise.each(data, function (row, index, array) {
+				return new Promise(async (res, rej) => {
+					let guildname = row.name;
+					let servername = row.server;
+					await new Promise(r => setTimeout(r, (index + 1) * 1000));
+					try {
+						// let axiosfeeder = await axiosfuncgroup.axiosgatherer(guildname, servername);
+					} catch (error) {
+						rej("Failed to axios gather.");
+					}
+					// let statustext = `\n${guildname}-${servername}\nLeader:${axiosfeeder.leaderclass} ${axiosfeeder.leader}\nMember sum:${axiosfeeder.membercount}\nMembers online: ${axiosfeeder.onl_array} KAI ANTE ΓΑΜΗΣΟΥ`;
+					// console.log(`θα κάνω edit το μήνυμα ${row.messageid} και το μήνυμα θα είναι ${statustext}`);
+					// console.log(`Message Edited ${guildname}`);
+					console.log("I run " + index);
+					res({
+						editedmessage: 0,// statustext,
+						messageid: 1//row.messageid
+					});
+				})
 			})
+
 			db.close();
-		})
+			resolve(results);
+		} catch (error) {
+			db.close();
+			reject(error);
+		}
 	})
 
 }
@@ -54,7 +114,8 @@ async function messagEditor(){
 client.on('ready', () => {
 	console.log('Good news everyone! The bot is working once again!');
 	client.user.setActivity('Good news everyone!');
-	var messagescanner = messagEditor(); 
+	let messagescanner = messageEditor(); 
+	messagescanner.then(r => console.log(r))
 }); 
 
 
