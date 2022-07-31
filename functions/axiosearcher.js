@@ -1,41 +1,34 @@
 const axios = require('axios').default;
-const fs = require('fs')
-const path = require('path');
+//const fs = require('fs')
+//const path = require('path');
 const rawdata = require('/root/putribot/Jsonlibs/discservicons.json');
-const util = require('util');
+//const util = require('util');
 
-async function axiosgatherer(guildname,servername){
-	guildname = guildname.replaceAll(" ", "+");
+//outputs a JSON out of the GET request with detailed information of the guilds like players, who is online and so.
+async function axiosgatherer(guildname,servername,client){
+	if(guildname){guildname = guildname.replaceAll(" ", "+")}
 	const link = `http://armory.warmane.com/api/guild/${guildname}/${servername}/summary`;
 	return await new Promise((resolve, reject) => {
 		axios.get(link).then(function (response){
-			// console.log("My Response status was: " + response.status);
-			// console.log("My Response request was: " + util.inspect(response.request));
-			// console.log("My Response data was: " + util.inspect(response.data));
 			let onlinearray = [];
 			let classtable = rawdata;
-			response.data.roster.forEach((user, index,error) => {
-				classicon = classtable["classes"][user.class];
-				if (user.online)onlinearray.push(`${classicon} ${user.name}`);
-			})
-			if (onlinearray === []){
-				let onlinearray = onlinearray.tostring("None")
-			}
+			if (!response.data.roster){console.log("Error on request");}
+				response.data.roster.forEach((user, index,error) => {
+					classicon = classtable["classes"][user.class];
+					if (user.online)onlinearray.push(`${classicon} ${user.name}`);
+				})
 			resolve({
 			onl_array : onlinearray.toString(),
 			membercount: response.data.membercount,
 			leader: response.data.leader.name,
 			leaderclass: classtable["classes"][response.data.leader.class],
-			linkready: link
-			});	
-		}).catch(function (error) {
-			// if (error.response) {
-			// 	console.log('Error', error.message);
-			  
-			// }
-			// console.log(error.config);
-			reject(error);
-		  });
-	});
+			linkready: link,
+			client:client,
+			Gn: response.data.name,
+			Rn: response.data.realm
+			});
+		})
+	})
 }
+
 module.exports = {axiosgatherer}
