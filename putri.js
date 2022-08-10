@@ -2,19 +2,29 @@ const { token } = require('./config.json');
 const { Client, Intents, CommandInteractionOptionResolver } = require('discord.js');
 const { Console } = require('console');
 const client = new Client({ intents: [ "GUILDS" , "GUILD_MESSAGES"] });
+const path = require('path');
+const appDir = path.dirname(require.main.filename);
+const dbPath = appDir + '/database/warmanedb.sqlite';
+var sqlite = require('sqlite3').verbose();
+const util = require("util");
 //const axios = require('axios').default;
 //const util = require('util');
 //const path = require('path');
 //const fs = require('fs')
 //const sqlite = require('sqlite3').verbose();
 //const appDir = path.dirname(require.main.filename);
-//const { MessageEmbed } = require('discord.js');
 const dbfunc = require('./functions/dbfunc');
-//const dbPath = appDir + '/database/warmanedb.sqlite';
-//const embedgroup = require('./functions/embed') // will be fixed in a next version soon
+
  var rownum = 1;
 // Bot login
 client.login(token);
+
+//What does the bot do when it logs in
+client.on('ready',async(client) => {
+	console.log('Good news everyone! The bot is working once again!');
+	client.user.setActivity('Good news everyone!');
+}); 
+
 
 async function messagEditRepeat(){
 	/*function that just outputs the number of the rows at the given loop
@@ -22,17 +32,15 @@ async function messagEditRepeat(){
 	let rowcount = await dbfunc.rowCounter()
 	let rownum = rowcount.counter;
 	//Function that scans every request in the form of a database entry and executes each one of it accordingly
-	let messagescanner =  await dbfunc.messageEditor(client)
-    setTimeout(messagEditRepeat, rownum*3000);
+	let messagescanner =  await dbfunc.messageEditor(client);
+    let obj123 = setTimeout(() => {
+		messagEditRepeat();
+	}, rownum*3000);
 }
+
 
 messagEditRepeat();
 
-	//What does the bot do when it logs in
-client.on('ready',async(client) => {
-	console.log('Good news everyone! The bot is working once again!');
-	client.user.setActivity('Good news everyone!');
-}); 
 
 	//Bot sends a message to the guild's welcome channel to let owner know how to initiate.
 client.on("guildCreate", guild => {
@@ -42,38 +50,69 @@ client.on("guildCreate", guild => {
 
 	//If someone deletes the bot's channel, the bot responds with deleting the guild from the database.
 client.on("channelDelete", async (channel) =>{
+	//faulty: Recheck it
 channelChecker = dbfunc.channelUpdater(channel);
 })
 
 client.on("messageCreate", async (message) => {
-	var prefix = ';'
+	var prefix = ';';
+	let results = commandEditor(message,prefix);
+	let command = results[0]
+	let name = results[1]
+	let server = results[2]
+	var channelid =  message.guildId;
+	let authorid = message.author.id;
 	if (message.author.bot) return;
-	if (message.content.startsWith(prefix + "start") && (message.author.id === message.guild.ownerId)){
+	if (command == `${prefix}START ` && (message.author.id === message.guild.ownerId)){
 			//Filters the message in order to get the name of the guild and the name of the server.
-		var messagecontent = message.content.replace(`${prefix}start `,'')
-		var messagecontent = messagecontent.split("-")
-		let guildname = messagecontent[0]
-		let servername = messagecontent[1]
 			//Checks if the user has used the "start" command in his server again. The user is allowed to monitor only one guild in each server.
 		var flagdata = await dbfunc.flagChecker(message)
 		if(flagdata.init == 1) return;
 			//puts the ;start request on the stack in order to execute when messageEditor calls it
-		let prereg = await dbfunc.preRegister(guildname,servername,message)
+		let prereg = await dbfunc.preRegister(name,server,message)
 		return;
 	}
 
-	if (message.content.startsWith(prefix + "search")){
-			/*edits the initial user's message in order to get the name of the guild and the server// IDEA: all guilds in warmane start with different letters so 
-			using the startsWith(method) to determine the server is an efficient idea. Also, I have to make a function for the algorithm that finds the guild's name and server*/
-		var realcontent = message.content.replace(`${prefix}search `,'')
-		var contentslicer =  realcontent.split("-");
-		var guildname = contentslicer[0];
-		var servername = contentslicer[1];
-		var channelid =  message.guildId;
-		let authorid = message.author.id;
-		let searchreg  = dbfunc.requestRegister(guildname,servername,authorid,channelid);
+	if (command == `${prefix}G`){
+		let mode = "Guild";
+		let searchreg  = dbfunc.requestRegister(name,server,authorid,channelid,mode);
 	}
-
+	if (command == `${prefix}WHO`){
+		let mode = "Player";
+		let searchreg  = dbfunc.requestRegister(name,server,authorid,channelid,mode);
+	}
 });
 
+function commandEditor(message,prefix){
+	if (message.content.startsWith(prefix)){
+		contentslicer =  message.content.split(" ")
+		precommand = contentslicer[0];
+		command = contentslicer[0].toUpperCase();
+		contentslicer = contentslicer.toString()
+		contentslicer = contentslicer.replace(`${precommand},`,'')
+		contentslicer = contentslicer.replace(`,`,' ')
+		contentslicer =  contentslicer.split("-");
+		let name = contentslicer[0];
+		let servername = contentslicer[1] || "Lordaeron"
 
+		if (name.startsWith((prefix))){
+			message.author.send("There was a problem with the message's spelling, try ;who / ;g [name]-[server(optional)]")
+			return;
+		}
+		if (servername.startsWith("I")||servername.startsWith("i")){ 
+			servername = "Icecrown";
+		} else if ((servername.startsWith("F")||servername.startsWith("f")) && (servername.endsWith("F")||servername.endsWith("f"))){
+			servername = "Frostwolf";
+		}else if (servername.startsWith("B")||servername.startsWith("b")){
+			servername = "Blackrock";
+		} else if  (servername.startsWith("F")||servername.startsWith("f")){
+			servername = "Frostmourne";
+		} else {
+			servername = "Lordaeron";
+		}
+		restofthename= name.slice(1)
+		name = name[0].toUpperCase()
+		name = name + restofthename
+		return [command,name,servername]
+	}
+}
