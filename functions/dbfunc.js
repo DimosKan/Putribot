@@ -102,43 +102,50 @@ async function messageEditor(client){
     });
    let results = await bluebird.Promise.mapSeries(rows, function (row, index, array) {
       return new Promise(async (res, rej) => {
-        let guildname = row.name;
-        let servername = row.server;
-        //waiting 3 seconds before it executes the next commands (for anti-requestspamming purposes)
-        await new Promise(r => setTimeout(r, 3000));
+        try {
+          let guildname = row.name;
+          let servername = row.server;
+          //waiting 3 seconds before it executes the next commands (for anti-requestspamming purposes)
+          await new Promise(r => setTimeout(r, 3000));
 
-        //"Guild" is the keyword to show that the request is made with the ";search" command
-        if (row.leader == "Guild"){
-          user = await client.users.fetch(row.messageid);
-          let axiosfeeder = await axiosfuncgroup.axiosgatherer(guildname, servername,client,row.messageid);
-          let embed = await embedmessage.embedbody(guildname,servername,axiosfeeder.leaderclass,axiosfeeder.leader,axiosfeeder.membercount,axiosfeeder.onl_array);
-          user.send({embeds: [embed.G_embed]});
+          //"Guild" is the keyword to show that the request is made with the ";search" command
+          if (row.leader == "Guild") {
+            user = await client.users.fetch(row.messageid);
+            let axiosfeeder = await axiosfuncgroup.axiosgatherer(guildname, servername, client, row.messageid);
+            let embed = await embedmessage.embedbody(guildname, servername, axiosfeeder.leaderclass, axiosfeeder.leader, axiosfeeder.membercount, axiosfeeder.onl_array);
+            user.send({ embeds: [embed.G_embed] });
 
-        } else if (row.leader == "Player"){
-          user = await client.users.fetch(row.messageid);
-          let axiosfeeder = await axiosfuncgroup.axiosgathererPlayer(guildname, servername,client,row.messageid);
-          let embed = await embedmessage.embedbodyplayer(axiosfeeder.name,axiosfeeder.realm,axiosfeeder.online,axiosfeeder.level,axiosfeeder.faction,axiosfeeder.race,axiosfeeder.wowclass,axiosfeeder.honorablekills,axiosfeeder.guild,axiosfeeder.achievement,axiosfeeder.tal_table,axiosfeeder.eq_array,axiosfeeder.prof_table,axiosfeeder.pvpteams_table,axiosfeeder.gs,axiosfeeder.ilvl,axiosfeeder.classword,axiosfeeder.classcolor);
-          user.send({embeds: [embed.P_embed]});
+          } else if (row.leader == "Player") {
+            user = await client.users.fetch(row.messageid);
+            let axiosfeeder = await axiosfuncgroup.axiosgathererPlayer(guildname, servername, client, row.messageid);
+            let embed = await embedmessage.embedbodyplayer(axiosfeeder.name, axiosfeeder.realm, axiosfeeder.online, axiosfeeder.level, axiosfeeder.faction, axiosfeeder.race, axiosfeeder.wowclass, axiosfeeder.honorablekills, axiosfeeder.guild, axiosfeeder.achievement, axiosfeeder.tal_table, axiosfeeder.eq_array, axiosfeeder.prof_table, axiosfeeder.pvpteams_table, axiosfeeder.gs, axiosfeeder.ilvl, axiosfeeder.classword, axiosfeeder.classcolor);
+            user.send({ embeds: [embed.P_embed] });
+          }
+          //"preregister" is the keyword to show that the request is made with the ";start" command
+          else if (row.leader == "preregister") {
+            let axiosfeeder = await axiosfuncgroup.axiosgatherer(guildname, servername, client);
+            let guildidcreate = row.guildid;
+            let channel_creator = await ChanCreate(axiosfeeder, client, guildidcreate);
+          } else {
+            //if no keyword exists, that means it scans a regular registered guild, all it does is edit the message with the updated infos.
+            let guild = await client.guilds.cache.get(row.guildid);
+            let channel = await guild.channels.cache.get(row.channelid)
+            let mfd = await channel.messages.fetch(row.messageid);
+            let axiosfeeder = await axiosfuncgroup.axiosgatherer(guildname, servername);
+            let embed = await embedmessage.embedbody(guildname, servername, axiosfeeder.leaderclass, axiosfeeder.leader, axiosfeeder.membercount, axiosfeeder.onl_array);
+            //let statustext = `\n${guildname}-${servername}\nLeader: ${axiosfeeder.leaderclass} ${axiosfeeder.leader}\nMember sum: ${axiosfeeder.membercount}\nMembers online: ${axiosfeeder.onl_array}`;
+            let em = mfd.edit({ embeds: [embed.G_embed] })
+          }
+          res({
+            messageid: row.messageid,
+          });
+        } catch (ex) {
+          rej();
         }
-        //"preregister" is the keyword to show that the request is made with the ";start" command
-        else if (row.leader == "preregister"){
-          let axiosfeeder = await axiosfuncgroup.axiosgatherer(guildname, servername,client);
-          let guildidcreate = row.guildid ;
-          let channel_creator= await ChanCreate(axiosfeeder,client,guildidcreate);
-        } else {
-        //if no keyword exists, that means it scans a regular registered guild, all it does is edit the message with the updated infos.
-          let	guild = await client.guilds.cache.get(row.guildid);
-          let	channel =  await guild.channels.cache.get(row.channelid)
-          let	mfd =  await channel.messages.fetch(row.messageid);
-          let axiosfeeder = await axiosfuncgroup.axiosgatherer(guildname, servername);
-          let embed = await embedmessage.embedbody(guildname,servername,axiosfeeder.leaderclass,axiosfeeder.leader,axiosfeeder.membercount,axiosfeeder.onl_array);
-          //let statustext = `\n${guildname}-${servername}\nLeader: ${axiosfeeder.leaderclass} ${axiosfeeder.leader}\nMember sum: ${axiosfeeder.membercount}\nMembers online: ${axiosfeeder.onl_array}`;
-          let em = mfd.edit({embeds: [embed.G_embed]})
-        }
-        res({
-          messageid: row.messageid,
-        });
       });
+    }).catch(() => {
+      //db.close();
+      reject();
     });
     db.close();
     resolve(results);

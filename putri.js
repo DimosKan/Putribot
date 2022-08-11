@@ -32,14 +32,14 @@ async function messagEditRepeat(){
 	let rowcount = await dbfunc.rowCounter()
 	let rownum = rowcount.counter;
 	//Function that scans every request in the form of a database entry and executes each one of it accordingly
-	let messagescanner =  await dbfunc.messageEditor(client);
+	let messagescanner =  await dbfunc.messageEditor(client).catch(() => {console.log("Well now..");});
     let obj123 = setTimeout(() => {
 		messagEditRepeat();
 	}, rownum*3000);
 }
 
 
-messagEditRepeat();
+//messagEditRepeat();
 
 
 	//Bot sends a message to the guild's welcome channel to let owner know how to initiate.

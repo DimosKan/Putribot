@@ -9,6 +9,82 @@
         "Shaman":"<:shaman:976906573559496775>",
         "Warrior":"<:warrior:976906592668758137>",
         "Paladin":"<:paladin:976906549173842000>",
-        "Death Knight" : "<:deathknight:976908678852665355>"    
+        "Death Knight" : "<:deathknight:976908678852665355>" ,
+        "Monk" :  "<:monk:1004357622515892255>"
+    },
+
+    "classcolor":{
+        "Priest" : "#FFFFFF" ,
+        "Mage" : "#3FC7EB" ,
+        "Warlock":"#8788EE",
+        "Druid": "#FF7C0A",
+        "Rogue": "#FFF468",
+        "Hunter": "#AAD372",
+        "Shaman":"#0070DD",
+        "Warrior": "#C69B6D",
+        "Paladin": "#F48CBA",
+        "Death Knight" : "#C41E3A" ,
+        "Monk" : "#00FF98" 
+    },
+
+    "Professions" : {
+        "Alchemy" : "<:alchemy:1004350624151908392>",
+        "Blacksmithing": "<:blacksmithing:1004350663490277449>",
+        "Enchanting" : "<:enchanting:1004358668441112576>",
+        "Engineering" : "<:engineering:1004350806734147644>",
+        "Herbalism" : "<:herbalism:1004350860035379280>",
+        "Inscription": "<:inscription:1004352588940062761>",
+        "Jewelcrafting": "<:jewelcrafting:1004353339905024052>",
+        "Leatherworking": "<:leatherworking:1004350985260498975>",
+        "Mining": "<:mining:1004350884450414632>",
+        "Skinning": "<:skinning:1004353707221188718>",
+        "Tailoring": "<:tailoring:1004350757895667773>"
+        
+    },
+
+    "Race":{
+        "Human":"<:human:1004354223720366130>", 
+        "Dwarf":"<:dwarf:1004358651412222013>",
+        "Night Elf":"<:nelf:1004354177834700810>",
+        "Gnome":"<:gnome:1004354266481307750>",
+        "Draenei":"<:draenei:1004358597293117470>",
+        "Worgen":"Worgen",
+        "Orc":"<:orc:1004354152350101616>",
+        "Undead":"<:undead:1004354062965284864>",
+        "Tauren":"<:tauren:1004354129734414346>",
+        "Troll":"<:troll:1004354096628760637>",
+        "Blood Elf":"<:belf:1004357520720146432>",
+        "Goblin":"Goblin"
+    },
+
+        "itemtype": {
+            "1" : "Head",
+            "2" : "Neck",
+            "3" : "Shoulders",
+            "4" : "Shirt",
+            "5" : "Chest",
+            "6" : "Waist",
+            "7" : "Legs",
+            "8" : "Feet",
+            "9" : "Wrist",
+            "10" : "Hands",
+            "11" : "Ring",
+            "12" : "Trinket",
+            "13" : "One-Hand",
+            "14" : "Shield",
+            "15" : "Bow",
+            "16" : "Back",
+            "17" : "Two-Hand",
+            "18" : "Bag/Quiver",
+            "19" : "Tabard",
+            "20" : "Robe",
+            "21" : "Main-Hand Meelee",
+            "22" : "Off-Hand Meelee",
+            "23" : "Off-hand Caster",
+            "24" : "Ammo",
+            "25" : "Thrown",
+            "26" : "Bow/Gun",
+            "27" : "Placeholder",
+            "28" : "Relic"
+        }
     }
-}
