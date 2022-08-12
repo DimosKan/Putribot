@@ -14,8 +14,7 @@ const util = require("util");
 //const sqlite = require('sqlite3').verbose();
 //const appDir = path.dirname(require.main.filename);
 const dbfunc = require('./functions/dbfunc');
-
- var rownum = 1;
+var rownum = 1;
 // Bot login
 client.login(token);
 
@@ -25,21 +24,46 @@ client.on('ready',async(client) => {
 	client.user.setActivity('Good news everyone!');
 }); 
 
+/* const rega = require("@timelostprototype/wow-client");
+
+const botaki = new rega.Client(
+  "logon.warmane.com", //Realmlist
+  "gpago",
+  "8zmcf69hv0pgs1q"
+);
+
+botaki.worldServer.on('message', Message=>{
+    //msg.logLine converts WoW color codes etc into ASNI escape codes for the terminal
+    console.log(Message.logLine);
+});
+
+async function bootstrap() {
+  //helper function for quick start, may go away
+  await botaki.connectToFirstRealmWithFirstCharacter();
+
+}
+bootstrap();
+
+ */
 
 async function messagEditRepeat(){
 	/*function that just outputs the number of the rows at the given loop
 	this happens in order to adjust the setimeout to happen just after 3 seconds pass from the last entry scan (otherwise the warmane API closes its connection for spamming protection*/
-	let rowcount = await dbfunc.rowCounter()
-	let rownum = rowcount.counter;
+	let rowcount = await dbfunc.rowCounter().catch((err)=> console.log("Error 2"));
+	if(!rowcount == undefined){
+	let rownum = rowcount.counter  
+	} else {
+		rownum = 1;
+	} 
 	//Function that scans every request in the form of a database entry and executes each one of it accordingly
-	let messagescanner =  await dbfunc.messageEditor(client).catch(() => {console.log("Well now..");});
+	let messagescanner =  await dbfunc.messageEditor(client).catch((err) => console.log("Error"));
     let obj123 = setTimeout(() => {
 		messagEditRepeat();
 	}, rownum*3000);
 }
 
 
-//messagEditRepeat();
+messagEditRepeat();
 
 
 	//Bot sends a message to the guild's welcome channel to let owner know how to initiate.
@@ -55,15 +79,18 @@ channelChecker = dbfunc.channelUpdater(channel);
 })
 
 client.on("messageCreate", async (message) => {
+	var mode = "None"
+	var searchreg = "None"
 	var prefix = ';';
 	let results = commandEditor(message,prefix);
-	let command = results[0]
-	let name = results[1]
-	let server = results[2]
+	if (message.author.bot) return;
+	if (!results)return;
+	let command = results[0];
+	let name = results[1];
+	let server = results[2];
 	var channelid =  message.guildId;
 	let authorid = message.author.id;
-	if (message.author.bot) return;
-	if (command == `${prefix}START ` && (message.author.id === message.guild.ownerId)){
+	if (command == `${prefix}START` && (message.author.id === message.guild.ownerId)){
 			//Filters the message in order to get the name of the guild and the name of the server.
 			//Checks if the user has used the "start" command in his server again. The user is allowed to monitor only one guild in each server.
 		var flagdata = await dbfunc.flagChecker(message)
@@ -72,15 +99,16 @@ client.on("messageCreate", async (message) => {
 		let prereg = await dbfunc.preRegister(name,server,message)
 		return;
 	}
-
-	if (command == `${prefix}G`){
+    if (command == `${prefix}G`){
 		let mode = "Guild";
+		msg = message;
 		let searchreg  = dbfunc.requestRegister(name,server,authorid,channelid,mode);
 	}
 	if (command == `${prefix}WHO`){
 		let mode = "Player";
 		let searchreg  = dbfunc.requestRegister(name,server,authorid,channelid,mode);
 	}
+
 });
 
 function commandEditor(message,prefix){
@@ -105,9 +133,9 @@ function commandEditor(message,prefix){
 			servername = "Frostwolf";
 		}else if (servername.startsWith("B")||servername.startsWith("b")){
 			servername = "Blackrock";
-		} else if  (servername.startsWith("F")||servername.startsWith("f")){
+		}else if  (servername.startsWith("F")||servername.startsWith("f")){
 			servername = "Frostmourne";
-		} else {
+		}else {
 			servername = "Lordaeron";
 		}
 		restofthename= name.slice(1)

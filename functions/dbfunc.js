@@ -8,20 +8,6 @@ const axiosfuncgroup = require('./axiosearcher');
 const embedmessage = require('./embed');
 const itemdata = require('/root/putribot/Jsonlibs/items.json');
 
-/*async function deleteTemp(rows){
-  console.log(rows)
-  let db = new sqlite.Database(dbPath, sqlite.OPEN_READWRITE);
-  console.log("Ηρθα")
-  db.serialize(function(rows){
-    var smmt = db.prepare(`DELETE FROM guildinfo WHERE messageid = ? AND name = ? `);
-   smmt.run(row.messageid,row.name);    
-   smmt.finalize()
-    res({
-      messageid: row.messageid,
-    });
- });
-}*/
-
 //Function to finalize the registration pending on the stack of the database
 async function dbRegister(name,server,leader,membercount,guildid,channelid,messageid){
   const prefix = ";"
@@ -86,7 +72,6 @@ async function flagChecker(message){
 }
 
 async function messageEditor(client){
-  console.log("Μπήκα")
   let db = new sqlite.Database(dbPath, sqlite.OPEN_READWRITE);
   return await new Promise(async (resolve,reject) => {
     const sql = 'SELECT * FROM guildinfo';
@@ -133,19 +118,23 @@ async function messageEditor(client){
             let mfd = await channel.messages.fetch(row.messageid);
             let axiosfeeder = await axiosfuncgroup.axiosgatherer(guildname, servername);
             let embed = await embedmessage.embedbody(guildname, servername, axiosfeeder.leaderclass, axiosfeeder.leader, axiosfeeder.membercount, axiosfeeder.onl_array);
-            //let statustext = `\n${guildname}-${servername}\nLeader: ${axiosfeeder.leaderclass} ${axiosfeeder.leader}\nMember sum: ${axiosfeeder.membercount}\nMembers online: ${axiosfeeder.onl_array}`;
             let em = mfd.edit({ embeds: [embed.G_embed] })
           }
           res({
             messageid: row.messageid,
           });
-        } catch (ex) {
-          rej();
+        } catch (err) {
+          user = await client.users.fetch(row.messageid);
+          user.send("Bad news everyone! You seem you have mispelled something in the name... either that or you have chosen the wrong server.");
+          console.log(err)
+          rej({})
+
+          
         }
       });
-    }).catch(() => {
-      //db.close();
-      reject();
+    }).catch(err => {
+      console.log(err)
+      reject({});
     });
     db.close();
     resolve(results);
@@ -194,12 +183,11 @@ async function rowCounter(){
     db.all(sql,[], function(error,rows){
       if (rows.length == 0){
         console.log("Empty database")
-        reject({})
+        return;
       }
       resolve({counter: rows.length})
     });
   })
-  .catch((e)=>console.log(e))
 }
 
 //after the axios GET request of the "start" command, this function creates the channel of the guild and sends the message with the guild information

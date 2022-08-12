@@ -1,11 +1,13 @@
 const { EmbedBuilder } = require('discord.js');
 
 async function embedbody(guild_name,server_name,leader_class,leader_name,member_count,members_online){ 
+	convertedname = guild_name.replace(" ","+")
+	glink = `http://armory.warmane.com/guild/${convertedname}/${server_name}/summary`
 	return await new Promise((resolve, reject) => {
 		const guildembed= {
 			color: 0x82D200,
 			title: `${guild_name}-${server_name}`,
-			url: `https://discord.js.org`, //ToDo Na petaei auton pou klikarei sto Warmane armory tou paixti
+			url: `${glink}`, //ToDo Na petaei auton pou klikarei sto Warmane armory tou paixti
 			author: {
 				name: 'Professor Putricide',
 				icon_url: 'https://static.wikia.nocookie.net/wowpedia/images/6/67/Professor_Putricide_HS.jpg/revision/latest/scale-to-width-down/200?cb=20170808222534',
@@ -51,6 +53,8 @@ async function embedbody(guild_name,server_name,leader_class,leader_name,member_
 
 async function embedbodyplayer(pname,prealm,pstatus,plevel,pfaction,prace,pclass,phonoroablekills,pguild,pfachieve,ptalent,pgear,pprofes,ppvpteam,gs,ilvl,pclassword,classcolor){ 
 	return await new Promise((resolve, reject) => {
+		pnameconverted = pname.replace(" ","+")
+		plink = `http://armory.warmane.com/character/${pnameconverted}/${prealm}/summary`
 
 		for (i = 0 ; i<18 ; i++){
 			if (pgear[i] == undefined ){pgear[i] = "\u200b";}
@@ -87,7 +91,7 @@ async function embedbodyplayer(pname,prealm,pstatus,plevel,pfaction,prace,pclass
 		const playerembed= {
 			color: classcolor,
 			title: `${pname} - ${prealm} (${plevel}) ${pstatus}`,
-			url: `https://discord.js.org`, //ToDo Na petaei auton pou klikarei sto Warmane armory tou paixti
+			url: `${plink}`, 
 			author: {
 				name: 'Professor Putricide',
 				icon_url: 'https://static.wikia.nocookie.net/wowpedia/images/6/67/Professor_Putricide_HS.jpg/revision/latest/scale-to-width-down/200?cb=20170808222534',

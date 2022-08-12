@@ -16,11 +16,7 @@ async function axiosgatherer(guildname,servername,client,mid){
 	if(guildname){convertedguildname = guildname.replaceAll(" ", "+")}
 	const link = `http://armory.warmane.com/api/guild/${convertedguildname}/${servername}/summary`;
 	return await new Promise((resolve, reject) => {
-		axios.get(link,args).then(function (response,args){
-/* 			if (response.data.error == 'Guild does not exist.'){
-				console.log("Μπηκα2")
-				return reject("fail promise").catch((err)=>console.log(err))
-			} */
+		axios.get(link,args).then(async function (response,args){
 			let onlinearray = [];
 			let classtable = rawdata;
 				response.data.roster.forEach((user, index,error) => {
@@ -38,23 +34,15 @@ async function axiosgatherer(guildname,servername,client,mid){
 			linkready: link,
 			client:client,
 			Gn: response.data.name,
-			Rn: response.data.realm
+			Rn: response.data.realm,
 			});
 		})	
 	
-		.catch( (err,args) => {
-						
-			reject({
-			})
-			
-
-		
+		.catch( (err,args) => {			
+			reject({})
 		})
-
 		.finally(()=>{
 			deleteError(args[0],args[3])
-		
-			
 		})
 	})
 }
@@ -166,7 +154,7 @@ async function axiosgathererPlayer(playername,servername,client,mid){
 			gs: gearscore,
 			ilvl : ilvltemp,
 			classword: response.data.class,
-			classcolor: classhex
+			classcolor: classhex,
 			});
 		})
 		.catch((args)=>{
@@ -187,7 +175,6 @@ async function deleteError(name , id){
 	 	smmt.run(id , name , "temp");    
 	 	smmt.finalize()
 	 	db.close()
-	//  return;
    });
 }
 module.exports = {axiosgatherer,axiosgathererPlayer}

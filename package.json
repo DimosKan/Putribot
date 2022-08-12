@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/DimosKan/Putribot#readme",
   "dependencies": {
+    "@timelostprototype/wow-client": "^0.0.4",
     "axios": "^0.27.2",
     "blubird": "^0.0.1-security",
     "discord.js": "^13.7.0",
