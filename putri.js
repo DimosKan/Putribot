@@ -14,15 +14,35 @@ const util = require("util");
 //const sqlite = require('sqlite3').verbose();
 //const appDir = path.dirname(require.main.filename);
 const dbfunc = require('./functions/dbfunc');
+const sendmail = require('./functions/sendmail');
 var rownum = 1;
 // Bot login
 client.login(token);
+
 
 //What does the bot do when it logs in
 client.on('ready',async(client) => {
 	console.log('Good news everyone! The bot is working once again!');
 	client.user.setActivity('Good news everyone!');
+	sendmail.sendMail();
 }); 
+
+/* client.on("error", m=>{ 
+	console.log(cError(" WARN ") + " " + m); });
+client.on("warn", m=>{
+	if (show_warn) console.log(cWarn(" WARN ") + " " + m); 
+}); */
+
+client.on("disconnected", () => {
+	console.log(cRed("Disconnected") + " from Discord");
+	setTimeout(() => {
+		console.log("Attempting to log in...");
+		client.loginWithToken(config.token, (err, token) => {
+			if (err) { console.log(err); setTimeout(() => { process.exit(1); sendmail.sendMail(err); }, 2000); }
+			if (!token) { console.log(" WARN " + " failed to connect"); setTimeout(() => { process.exit(0); }, 2000); }
+		});
+	});
+});
 
 /* const rega = require("@timelostprototype/wow-client");
 
@@ -49,7 +69,7 @@ bootstrap();
 async function messagEditRepeat(){
 	/*function that just outputs the number of the rows at the given loop
 	this happens in order to adjust the setimeout to happen just after 3 seconds pass from the last entry scan (otherwise the warmane API closes its connection for spamming protection*/
-	let rowcount = await dbfunc.rowCounter().catch((err)=> console.log("Error 2"));
+	let rowcount = await dbfunc.rowCounter().catch((err)=> console.log("Error"));
 	if(!rowcount == undefined){
 	let rownum = rowcount.counter  
 	} else {
@@ -57,6 +77,7 @@ async function messagEditRepeat(){
 	} 
 	//Function that scans every request in the form of a database entry and executes each one of it accordingly
 	let messagescanner =  await dbfunc.messageEditor(client).catch((err) => console.log("Error"));
+	//issue: if a malicious player spams commands, the messagEditor will very easily get bloated with pending commands. I have to let a user use a command per queue.
     let obj123 = setTimeout(() => {
 		messagEditRepeat();
 	}, rownum*3000);

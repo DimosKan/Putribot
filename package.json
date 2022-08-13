@@ -31,6 +31,7 @@
     "jquery": "^3.6.0",
     "jsdom": "^19.0.0",
     "node.js": "0.0.1-security",
+    "nodemailer": "^6.7.8",
     "nodemon": "^1.19.4",
     "npm": "^8.10.0",
     "request": "^2.88.2",
