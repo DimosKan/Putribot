@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/DimosKan/Putribot#readme",
   "dependencies": {
-    "@timelostprototype/wow-client": "^0.0.4",
+    "@timelostprototype/wow-client": "^0.0.5",
     "axios": "^0.27.2",
     "blubird": "^0.0.1-security",
     "discord.js": "^13.7.0",
@@ -32,7 +32,7 @@
     "jsdom": "^19.0.0",
     "node.js": "0.0.1-security",
     "nodemailer": "^6.7.8",
-    "nodemon": "^1.19.4",
+    "nodemon": "^2.0.20",
     "npm": "^8.10.0",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
