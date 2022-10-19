@@ -14,7 +14,7 @@ const dbPath = appDir + '/database/warmanedb.sqlite';
 //const appDir = path.dirname(require.main.filename);
 const dbfunc = require('./functions/dbfunc');
 const sendmail = require('./functions/sendmail');
-var rownum = 1;
+//var rownum = 1;
 // Bot login
 client.login(token);
 
@@ -42,18 +42,19 @@ async function messagEditRepeat(){
 	console.log("Scanner activated",log_date.toLocaleString());
 	/*function that just outputs the number of the rows at the given loop
 	this happens in order to adjust the setimeout to happen just after 3 seconds pass from the last entry scan (otherwise the warmane API closes its connection for spamming protection*/
-	let rowcount = await dbfunc.rowCounter().catch((err)=> console.log("Error"));
-	if(!rowcount == undefined){
-	let rownum = rowcount.counter  
-	} else {
-		rownum = 1;
-	} 
+	//let rowcount = await dbfunc.rowCounter().catch((err)=> console.log("Error"));
+	//if(!rowcount == undefined){
+	//let rownum = rowcount.counter  
+	//} else {
+	//	rownum = 1;
+	//} 
 	//Function that scans every request in the form of a database entry and executes each one of it accordingly
 	let messagescanner =  await dbfunc.messageEditor(client).catch((err) => console.log("Error"));
 	//issue: if a malicious player spams commands, the messagEditor will very easily get bloated with pending commands. I have to let a user use a command per person.
     let obj123 = setTimeout(() => {
 		messagEditRepeat();
-	}, rownum*3000);
+		//console.log(rownum)
+	}, /*rownum**/3000);
 }
 
 

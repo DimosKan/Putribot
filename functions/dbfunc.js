@@ -67,7 +67,6 @@ async function flagChecker(message){
   })
   .catch(function (error) {
     console.log(error);
-    reject({error});
   })
 }
 
@@ -127,9 +126,7 @@ async function messageEditor(client){
           user = await client.users.fetch(row.messageid);
           user.send("Bad news everyone! You seem you have mispelled something in the name... either that or you have chosen the wrong server.");
           console.log(err)
-          rej({})
-
-          
+          rej({});
         }
       });
     }).catch(err => {
@@ -138,8 +135,8 @@ async function messageEditor(client){
     });
     db.close();
     resolve(results);
-  })
-}
+  });
+};
 
 //registers a temporal entry in order to then make an axios request with it and send it via dm to the user (for ;search function)
 async function requestRegister(name,server,authorid,channelid,mode){
