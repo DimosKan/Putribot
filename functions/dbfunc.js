@@ -86,7 +86,7 @@ async function messageEditor(client){
     });
    let results = await bluebird.Promise.mapSeries(rows, function (row, index, array) {
       return new Promise(async (res, rej) => {
-        try {
+        //try {
           let guildname = row.name;
           let servername = row.server;
           //waiting 3 seconds before it executes the next commands (for anti-requestspamming purposes)
@@ -122,12 +122,12 @@ async function messageEditor(client){
           res({
             messageid: row.messageid,
           });
-        } catch (err) {
+        /* } catch (err) {
           user = await client.users.fetch(row.messageid);
           user.send("Bad news everyone! You seem you have mispelled something in the name... either that or you have chosen the wrong server.");
           console.log(err)
           rej({});
-        }
+        }*/
       });
     }).catch(err => {
       console.log(err)
