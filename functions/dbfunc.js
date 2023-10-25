@@ -71,7 +71,7 @@ async function flagChecker(message){
 }
 
 async function messageEditor(client){
-  let db = new sqlite.Database(dbPath, sqlite.OPEN_READWRITE);
+  let db = new sqlite.Database(dbPath, sqlite.OPEN_READONLY);
   return await new Promise(async (resolve,reject) => {
     const sql = 'SELECT * FROM guildinfo';
     let rows = await new Promise((res, rej) => {
@@ -180,7 +180,7 @@ async function rowCounter(){
     db.all(sql,[], function(error,rows){
       if (rows.length == 0){
         console.log("Empty database")
-        return;
+        resolve({pagopoulos: "gay" });
       }
       resolve({counter: rows.length})
     });

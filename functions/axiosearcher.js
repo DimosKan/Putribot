@@ -9,15 +9,12 @@ const util = require('util');
 const itemdata = require('/root/putribot/Jsonlibs/items.json');
 var sqlite = require('sqlite3').verbose();
 
-console.log("axiosearcher line 12")
 //outputs a JSON out of the GET request with detailed information of the guilds like players, who is online and so.
 async function axiosgatherer(guildname,servername,client,mid){
 	args = [guildname,servername,client,mid]
 	if(guildname){convertedguildname = guildname.replaceAll(" ", "+")}
-	console.log("axiosearcher line 17")
 	const link = `http://armory.warmane.com/api/guild/${convertedguildname}/${servername}/summary`;
 	return await new Promise((resolve, reject) => {
-		console.log("axiosearcher, line 20")
 		axios.get(link,args).then(async function (response,args){
 			let onlinearray = [];
 			let classtable = rawdata;
@@ -28,7 +25,6 @@ async function axiosgatherer(guildname,servername,client,mid){
 				if (onlinearray.length == 0 ){
 					onlinearray.push("None")
 				}
-				console.log("axiosearcher line 31")
 			resolve({
 			onl_array : onlinearray.toString(),
 			membercount: response.data.membercount,
@@ -43,11 +39,9 @@ async function axiosgatherer(guildname,servername,client,mid){
 	
 		.catch( (err,args) => {			
 			reject({})
-			console.log("axiosearcher line 46")
 		})
 		.finally(()=>{
 			deleteError(args[0],args[3])
-			console.log("axiosearcher line 50")
 		})
 	})
 }
@@ -177,7 +171,7 @@ async function deleteError(name , id){
 	let db = new sqlite.Database(dbPath, sqlite.OPEN_READWRITE);
 	db.serialize(function(rows){
 		let smmt = db.prepare(`DELETE FROM guildinfo WHERE messageid = ? AND name = ? AND membercount =?`);
-	 	smmt.run(id , name , "temp");    
+	 	smmt.run(id , name , "temp");
 	 	smmt.finalize()
 	 	db.close()
    });
